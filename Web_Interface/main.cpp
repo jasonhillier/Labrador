@@ -56,15 +56,17 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
         mg_http_reply(c, 200, "", "{success: %s, mode: %d}", formatBool(success), modeval);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/analog_data")) {
-        auto data = librador_get_analog_data(1, 5, 5000, 1, 0);
+        std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
         std::string dataout;
-        for(double d : *data)
+        for(double d : data)
         {
             dataout.append(std::to_string(d));
-            dataout.append(",");
+            dataout.append("0,");
         }
 
-        mg_http_reply(c, 200, "", "{data: [%s]}", dataout);  // Testing endpoint
+        dataout.append("0");
+
+        mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
