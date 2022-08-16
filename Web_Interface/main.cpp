@@ -15,6 +15,9 @@ static const char *s_ssi_pattern = "#.html";
 static int s_signo;
 static void signal_handler(int signo) {
   s_signo = signo;
+
+  //shutdown hardware
+  librador_exit();
 }
 
 // Event handler for the listening connection.
@@ -26,6 +29,39 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     struct mg_http_serve_opts opts = {0};
     opts.root_dir = s_root_dir;
     opts.ssi_pattern = s_ssi_pattern;
+
+    if (mg_http_match_uri(hm, "/lab/hi")) {
+        mg_http_reply(c, 200, "", "hi\n");  // Testing endpoint
+        (void) fn_data;
+        return;
+    }
+
+    if (mg_http_match_uri(hm, "/lab/ver")) {
+        auto ver = librador_get_device_firmware_version();
+        auto m_ver = librador_get_device_firmware_variant();
+        mg_http_reply(c, 200, "", "{version: %u.%u}", ver, m_ver);  // Testing endpoint
+        (void) fn_data;
+        return;
+    }
+
+    if (mg_http_match_uri(hm, "/lab/init")) {
+        auto r = librador_init();
+        //MG_INFO("Started Librador: %i", r);
+        auto i = librador_setup_usb();
+
+        mg_http_reply(c, 200, "", "{init_flag: %d, detected: %d}", r, i);  // Testing endpoint
+        (void) fn_data;
+        return;
+    }
+
+    if (mg_http_match_uri(hm, "/lab/reset")) {
+        auto r = librador_reset_device();
+
+        mg_http_reply(c, 200, "", "{reset_flag: %d}", r);  // Testing endpoint
+        (void) fn_data;
+        return;
+    }
+
     mg_http_serve_dir(c, hm, &opts);
     mg_http_parse((char *) c->send.buf, c->send.len, &tmp);
     cl = mg_http_get_header(&tmp, "Content-Length");
@@ -92,10 +128,6 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
   if (mg_casecmp(s_enable_hexdump, "yes") == 0) c->is_hexdumping = 1;
-
-  auto r = librador_init();
-  //MG_INFO("Started Librador: %i", r);
-  librador_setup_usb();
 
   // Start infinite event loop
   MG_INFO(("Mongoose version : v%s", MG_VERSION));
