@@ -11,13 +11,12 @@ static const char *s_listening_address = "http://0.0.0.0:8000";
 static const char *s_enable_hexdump = "no";
 static const char *s_ssi_pattern = "#.html";
 
+#define formatBool(b) ((b) ? "true" : "false")
+
 // Handle interrupts, like Ctrl-C
 static int s_signo;
 static void signal_handler(int signo) {
   s_signo = signo;
-
-  //shutdown hardware
-  librador_exit();
 }
 
 // Event handler for the listening connection.
@@ -32,43 +31,36 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
     if (mg_http_match_uri(hm, "/lab/hi")) {
         mg_http_reply(c, 200, "", "hi\n");  // Testing endpoint
-        (void) fn_data;
-        return;
-    }
-
-    if (mg_http_match_uri(hm, "/lab/ver")) {
+    } else if (mg_http_match_uri(hm, "/lab/ver")) {
         auto ver = librador_get_device_firmware_version();
         auto m_ver = librador_get_device_firmware_variant();
         mg_http_reply(c, 200, "", "{version: %u.%u}", ver, m_ver);  // Testing endpoint
-        (void) fn_data;
-        return;
-    }
-
-    if (mg_http_match_uri(hm, "/lab/init")) {
+    } else if (mg_http_match_uri(hm, "/lab/init")) {
         auto r = librador_init();
         //MG_INFO("Started Librador: %i", r);
         auto i = librador_setup_usb();
-
-        mg_http_reply(c, 200, "", "{init_flag: %d, detected: %d}", r, i);  // Testing endpoint
-        (void) fn_data;
-        return;
-    }
-
-    if (mg_http_match_uri(hm, "/lab/reset")) {
+    } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
 
         mg_http_reply(c, 200, "", "{reset_flag: %d}", r);  // Testing endpoint
-        (void) fn_data;
-        return;
-    }
+    } else if (mg_http_match_uri(hm, "/lab/mode")) {
+        struct mg_str m = mg_http_var(hm->query, mg_str("m")); //m=?
+        m = mg_strdup(m); //note: mg non-zero terminate fix
+        int modeval = atoi(m.ptr);
 
-    mg_http_serve_dir(c, hm, &opts);
-    mg_http_parse((char *) c->send.buf, c->send.len, &tmp);
-    cl = mg_http_get_header(&tmp, "Content-Length");
-    if (cl == NULL) cl = &unknown;
-    MG_INFO(("%.*s %.*s %.*s %.*s", (int) hm->method.len, hm->method.ptr,
-             (int) hm->uri.len, hm->uri.ptr, (int) tmp.uri.len, tmp.uri.ptr,
-             (int) cl->len, cl->ptr));
+        bool success = librador_set_device_mode(modeval) == 0;
+
+        mg_http_reply(c, 200, "", "{success: %s, mode: %d}", formatBool(success), modeval);  // Testing endpoint
+    } else {
+
+        mg_http_serve_dir(c, hm, &opts);
+        mg_http_parse((char *) c->send.buf, c->send.len, &tmp);
+        cl = mg_http_get_header(&tmp, "Content-Length");
+        if (cl == NULL) cl = &unknown;
+        MG_INFO(("%.*s %.*s %.*s %.*s", (int) hm->method.len, hm->method.ptr,
+                (int) hm->uri.len, hm->uri.ptr, (int) tmp.uri.len, tmp.uri.ptr,
+                (int) cl->len, cl->ptr));
+    }
   }
   (void) fn_data;
 }
@@ -136,5 +128,7 @@ int main(int argc, char *argv[]) {
   while (s_signo == 0) mg_mgr_poll(&mgr, 1000);
   mg_mgr_free(&mgr);
   MG_INFO(("Exiting on signal %d", s_signo));
+  //shutdown hardware
+  librador_exit();
   return 0;
 }
