@@ -2,6 +2,7 @@
 // All rights reserved
 
 #include <signal.h>
+#include <string>
 #include "mongoose.h"
 #include "librador.h"
 
@@ -34,11 +35,14 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     } else if (mg_http_match_uri(hm, "/lab/ver")) {
         auto ver = librador_get_device_firmware_version();
         auto m_ver = librador_get_device_firmware_variant();
+
         mg_http_reply(c, 200, "", "{version: %u.%u}", ver, m_ver);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/init")) {
         auto r = librador_init();
         //MG_INFO("Started Librador: %i", r);
         auto i = librador_setup_usb();
+
+        mg_http_reply(c, 200, "", "{init: %d, detected: %d}", r, i);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
 
@@ -51,8 +55,18 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         bool success = librador_set_device_mode(modeval) == 0;
 
         mg_http_reply(c, 200, "", "{success: %s, mode: %d}", formatBool(success), modeval);  // Testing endpoint
-    } else {
+    } else if (mg_http_match_uri(hm, "/lab/analog_data")) {
+        auto data = librador_get_analog_data(1, 5, 5000, 1, 0);
+        std::string dataout;
+        for(double d : *data)
+        {
+            dataout.append(std::to_string(d));
+            dataout.append(",");
+        }
 
+        mg_http_reply(c, 200, "", "{data: [%s]}", dataout);  // Testing endpoint
+    } else {
+        //serve static files
         mg_http_serve_dir(c, hm, &opts);
         mg_http_parse((char *) c->send.buf, c->send.len, &tmp);
         cl = mg_http_get_header(&tmp, "Content-Length");

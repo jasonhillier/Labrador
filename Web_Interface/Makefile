@@ -14,7 +14,7 @@ all: $(PROG)
 	$(DEBUGGER) ./$(PROG) $(ARGS)
 
 $(PROG): main.cpp
-	$(CC) ../../mongoose/mongoose.c main.cpp $(CFLAGS) $(EFLAGS) -o $(PROG)
+	g++ ../../mongoose/mongoose.c main.cpp $(CFLAGS) $(EFLAGS) -o $(PROG)
 
 clean:
 	rm -rf $(PROG) *.o *.dSYM *.gcov *.gcno *.gcda *.obj *.exe *.ilk *.pdb
