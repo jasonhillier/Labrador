@@ -87,7 +87,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         double seriesResistance = 1000;
         double multimeterRsource = 0;
         double rtest_para_r = 1/(1/seriesResistance);
-        double ch2_ref = 0; //??
+        double ch2_ref = 1.65; //??
         double Vm = acc;
         double perturbation = ch2_ref * (rtest_para_r / (R3 + R4 + rtest_para_r));
         Vm = Vm - perturbation;
