@@ -132,6 +132,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         librador_set_device_mode(7); //multimeter mode
 
         std::vector<double>* data = librador_get_analog_data(1, 5, 5000, 1, 0);
+        printf("got: %d", data->size())
         //data buffer
         std::vector<double> ch1(GRAPH_SAMPLES);
         analogConvert(data, &ch1, 0, false, 1); //currentVmean
