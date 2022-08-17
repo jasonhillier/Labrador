@@ -49,13 +49,13 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
         #endif
 
         accumulated += data[i];
-        accumulated_square += data[i] * data[i];
+        //accumulated_square += data[i] * data[i];
         if (data[i] > currentVmax) currentVmax = data[i];
         if (data[i] < currentVmin) currentVmin = data[i];
     }
     
     currentVmean  = accumulated / doublePtr->size();
-    currentVRMS = sqrt(accumulated_square / doublePtr->size());
+    //currentVRMS = sqrt(accumulated_square / doublePtr->size());
     /*
     if(AC){
         //Previous measurments are wrong, edit and redo.
