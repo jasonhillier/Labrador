@@ -48,7 +48,11 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         //MG_INFO("Started Librador: %i", r);
         auto i = librador_setup_usb();
 
-        mg_http_reply(c, 200, "", "{init: %d, detected: %d}", r, i);  // Testing endpoint
+        mg_http_reply(c, 200, "", "{init: %d}", r);  // Testing endpoint
+    } else if (mg_http_match_uri(hm, "/lab/usb")) {
+        auto i = librador_setup_usb();
+
+        mg_http_reply(c, 200, "", "{detected: %d}", i);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
 
