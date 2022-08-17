@@ -134,6 +134,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         double acc = 0;
         for(double d : ch1)
         {
+            printf("%g", d);
             acc += d;
         }
 
