@@ -45,8 +45,6 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         mg_http_reply(c, 200, "", "{version: %u.%u}", ver, m_ver);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/init")) {
         auto r = librador_init();
-        //MG_INFO("Started Librador: %i", r);
-        auto i = librador_setup_usb();
 
         mg_http_reply(c, 200, "", "{init: %d}", r);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/usb")) {
