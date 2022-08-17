@@ -153,7 +153,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         //estimated_resistance /= 1000; //k
 
 
-        mg_http_reply(c, 200, "", "{size: %d, acc: %g, rk: %g, val: %g}", ch1.size(), acc, estimated_resistance, Vrat);  // Testing endpoint
+        mg_http_reply(c, 200, "", "{size: %d, ptr: %g, acc: %g, rk: %g, val: %g}", ch1.size(), perturbation, acc, estimated_resistance, Vrat);  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
