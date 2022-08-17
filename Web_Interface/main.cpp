@@ -96,10 +96,10 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         double Rp = 1/(1/seriesResistance + 1/(R3+R4));
         double estimated_resistance = ((1-Vrat)/Vrat) * Rp; //Perturbation term on V2 ignored.  V1 = Vin.  V2 = Vin(Rp/(R+Rp)) + Vn(Rtest||R / (R34 + (Rtest||R34));
         //qDebug() << "Vm = " << Vm;
-        estimated_resistance /= 1000; //k
+        //estimated_resistance /= 1000; //k
 
 
-        mg_http_reply(c, 200, "", "{rk: %g, val: %g}", estimated_resistance, 0.01);  // Testing endpoint
+        mg_http_reply(c, 200, "", "{rk: %g, val: %g}", estimated_resistance, Vrat);  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
