@@ -17,6 +17,7 @@ static const char *s_ssi_pattern = "#.html";
 #define R3 (double)1000000
 #define R2 (double)1000
 #define R1 (double)1000
+int GRAPH_SAMPLES = 1024;
 
 #define formatBool(b) ((b) ? "true" : "false")
 
@@ -24,6 +25,56 @@ static const char *s_ssi_pattern = "#.html";
 static int s_signo;
 static void signal_handler(int signo) {
   s_signo = signo;
+}
+
+void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr, int TOP, bool AC, int channel){
+
+    double scope_gain = 1;//(double)(driver->scopeGain);
+    double accumulated = 0;
+    double accumulated_square = 0;
+    double currentVmax = -20;
+    double currentVmin = 20;
+
+    double ref = 1.65; //(channel == 1 ? ch1_ref : ch2_ref);
+    double frontendGain = 1; //(channel == 1 ? frontendGain_CH1 : frontendGain_CH2);
+
+    double *data = doublePtr->data();
+    for (int i=0;i<doublePtr->size();i++){
+        data[i] = (shortPtr->at(i) * (vcc/2)) / (frontendGain*scope_gain*TOP);
+        //!! if (driver->deviceMode != 7) data[i] += ref;
+        #ifdef INVERT_MM
+            if(driver->deviceMode == 7) data[i] *= -1;
+        #endif
+
+        accumulated += data[i];
+        accumulated_square += data[i] * data[i];
+        if (data[i] > currentVmax) currentVmax = data[i];
+        if (data[i] < currentVmin) currentVmin = data[i];
+    }
+    /*
+    currentVmean  = accumulated / doublePtr->size();
+    currentVRMS = sqrt(accumulated_square / doublePtr->size());
+
+    if(AC){
+        //Previous measurments are wrong, edit and redo.
+        accumulated = 0;
+        accumulated_square = 0;
+        currentVmax = -20;
+        currentVmin = 20;
+
+        for (int i=0;i<doublePtr->size();i++){
+            data[i] -= currentVmean;
+
+            accumulated += data[i];
+            accumulated_square += (data[i] * data[i]);
+            if (data[i] > currentVmax) currentVmax = data[i];
+            if (data[i] < currentVmin) currentVmin = data[i];
+        }
+        currentVmean  = accumulated / doublePtr->size();
+        currentVRMS = sqrt(accumulated_square / doublePtr->size());
+    }
+    */
+    //cool_waveform = cool_waveform - AC_offset;
 }
 
 // Event handler for the listening connection.
@@ -74,16 +125,19 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
         mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
-        //librador_set_device_mode(7); //multimeter mode
+        librador_set_device_mode(7); //multimeter mode
 
-        std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
+        std::vector<double>* data = librador_get_analog_data(1, 5, 5000, 1, 0);
+        //data buffer
+        std::vector<double> ch1(GRAPH_SAMPLES);
+        analogConvert(data, &ch1, 0, false, 1);
         double acc = 0;
-        for(double d : data)
+        for(double d : ch1)
         {
             acc += d;
         }
 
-        acc = acc / data.size();
+        acc = acc / ch1.size();
         double seriesResistance = 1000;
         double multimeterRsource = 0;
         double rtest_para_r = 1/(1/seriesResistance);
