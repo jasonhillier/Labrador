@@ -51,7 +51,6 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         mg_http_reply(c, 200, "", "{init: %d, detected: %d}", r, i);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
-        librador_reset_usb();
 
         mg_http_reply(c, 200, "", "{reset_flag: %d}", r);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mode")) {
