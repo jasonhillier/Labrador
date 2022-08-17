@@ -11,6 +11,12 @@ static const char *s_root_dir = ".";
 static const char *s_listening_address = "http://0.0.0.0:8000";
 static const char *s_enable_hexdump = "no";
 static const char *s_ssi_pattern = "#.html";
+#define vcc (double)3.3
+#define vref ((double)(vcc/2))
+#define R4 (double)75000
+#define R3 (double)1000000
+#define R2 (double)1000
+#define R1 (double)1000
 
 #define formatBool(b) ((b) ? "true" : "false")
 
@@ -42,6 +48,8 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         //MG_INFO("Started Librador: %i", r);
         auto i = librador_setup_usb();
 
+        librador_set_device_mode(7); //multimeter mode
+
         mg_http_reply(c, 200, "", "{init: %d, detected: %d}", r, i);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
@@ -67,6 +75,31 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         dataout.append("0");
 
         mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
+    } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
+        std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
+        double acc = 0;
+        for(double d : data)
+        {
+            acc += d;
+        }
+
+        acc = acc / data.size();
+        double seriesResistance = 1000;
+        double multimeterRsource = 0;
+        double rtest_para_r = 1/(1/seriesResistance);
+        double ch2_ref = 0; //??
+        double Vm = 0; //?
+        double perturbation = ch2_ref * (rtest_para_r / (R3 + R4 + rtest_para_r));
+        Vm = Vm - perturbation;
+        double Vin = (multimeterRsource * 2) + 3;
+        double Vrat = (Vin-Vm)/Vin;
+        double Rp = 1/(1/seriesResistance + 1/(R3+R4));
+        double estimated_resistance = ((1-Vrat)/Vrat) * Rp; //Perturbation term on V2 ignored.  V1 = Vin.  V2 = Vin(Rp/(R+Rp)) + Vn(Rtest||R / (R34 + (Rtest||R34));
+        //qDebug() << "Vm = " << Vm;
+        estimated_resistance /= 1000; //k
+
+
+        mg_http_reply(c, 200, "", "{rk: [%02d]}", estimated_resistance);  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
