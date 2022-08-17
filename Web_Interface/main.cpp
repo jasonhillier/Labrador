@@ -51,6 +51,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         mg_http_reply(c, 200, "", "{init: %d, detected: %d}", r, i);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/reset")) {
         auto r = librador_reset_device();
+        librador_reset_usb();
 
         mg_http_reply(c, 200, "", "{reset_flag: %d}", r);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mode")) {
@@ -75,7 +76,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
         librador_set_device_mode(7); //multimeter mode
-        
+
         std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
         double acc = 0;
         for(double d : data)
