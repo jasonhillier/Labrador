@@ -99,7 +99,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         estimated_resistance /= 1000; //k
 
 
-        mg_http_reply(c, 200, "", "{rk: %02.2d, val: %02.2d}", estimated_resistance, 0.01);  // Testing endpoint
+        mg_http_reply(c, 200, "", "{rk: %.2f, val: %.2f}", estimated_resistance, 0.01);  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
