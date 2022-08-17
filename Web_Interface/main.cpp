@@ -41,9 +41,10 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
     double frontendGain = 1; //(channel == 1 ? frontendGain_CH1 : frontendGain_CH2);
 
     double *data = doublePtr->data();
+    double *src = shortPtr->data();
     for (int i=0;i<doublePtr->size();i++){
-        printf("%g", shortPtr->data()[i]);
-        data[i] = (shortPtr->data[i] * (vcc/2)) / (frontendGain*scope_gain*TOP);
+        printf("%g", src[i]);
+        data[i] = (src[i] * (vcc/2)) / (frontendGain*scope_gain*TOP);
         //!! if (driver->deviceMode != 7) data[i] += ref;
         #ifdef INVERT_MM
             if(driver->deviceMode == 7) data[i] *= -1;
