@@ -19,6 +19,8 @@ static const char *s_ssi_pattern = "#.html";
 #define R1 (double)1000
 int GRAPH_SAMPLES = 1024;
 
+double currentVmean, currentVRMS;
+
 #define formatBool(b) ((b) ? "true" : "false")
 
 // Handle interrupts, like Ctrl-C
@@ -51,10 +53,10 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
         if (data[i] > currentVmax) currentVmax = data[i];
         if (data[i] < currentVmin) currentVmin = data[i];
     }
-    /*
+    
     currentVmean  = accumulated / doublePtr->size();
     currentVRMS = sqrt(accumulated_square / doublePtr->size());
-
+    /*
     if(AC){
         //Previous measurments are wrong, edit and redo.
         accumulated = 0;
@@ -130,20 +132,13 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         std::vector<double>* data = librador_get_analog_data(1, 5, 5000, 1, 0);
         //data buffer
         std::vector<double> ch1(GRAPH_SAMPLES);
-        analogConvert(data, &ch1, 0, false, 1);
-        double acc = 0;
-        for(double d : ch1)
-        {
-            printf("%g", d);
-            acc += d;
-        }
+        analogConvert(data, &ch1, 0, false, 1); //currentVmean
 
-        acc = acc / ch1.size();
         double seriesResistance = 1000;
         double multimeterRsource = 0;
         double rtest_para_r = 1/(1/seriesResistance);
         double ch2_ref = 1.65; //??
-        double Vm = acc;
+        double Vm = currentVmean;
         double perturbation = ch2_ref * (rtest_para_r / (R3 + R4 + rtest_para_r));
         Vm = Vm - perturbation;
         double Vin = (multimeterRsource * 2) + 3;
