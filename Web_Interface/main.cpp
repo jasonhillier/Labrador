@@ -74,7 +74,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
         mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
-        librador_set_device_mode(7); //multimeter mode
+        //librador_set_device_mode(7); //multimeter mode
 
         std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
         double acc = 0;
