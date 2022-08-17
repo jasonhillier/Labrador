@@ -42,6 +42,7 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
 
     double *data = doublePtr->data();
     for (int i=0;i<doublePtr->size();i++){
+        printf("%g", shortPtr->at(i));
         data[i] = (shortPtr->at(i) * (vcc/2)) / (frontendGain*scope_gain*TOP);
         //!! if (driver->deviceMode != 7) data[i] += ref;
         #ifdef INVERT_MM
