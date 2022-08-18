@@ -127,7 +127,12 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
         mg_http_reply(c, 200, "", "{success: %s, mode: %d}", formatBool(success), modeval);  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/analog_data")) {
-        std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
+        struct mg_str channel_str = mg_http_var(hm->query, mg_str("c")); //c=?
+        channel_str = mg_strdup(channel_str); //note: mg non-zero terminate fix
+        int channel = atoi(channel_str.ptr);
+        channel <= 0 ? 1 : channel;
+        
+        std::vector<double> data = *librador_get_analog_data(channel, 5, 5000, 1, 0);
         std::string dataout;
         double acc = 0;
         for(double d : data)
