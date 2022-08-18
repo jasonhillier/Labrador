@@ -59,7 +59,7 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
         if (data[i] < currentVmin) currentVmin = data[i];
     }
 
-    printf("acc = %g, size= %d", accumulated, doublePtr->size());
+    printf("acc = %g, size= %d |", accumulated, doublePtr->size());
     
     currentVmean  = accumulated / doublePtr->size();
     //currentVRMS = sqrt(accumulated_square / doublePtr->size());
