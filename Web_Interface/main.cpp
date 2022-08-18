@@ -32,6 +32,11 @@ static void signal_handler(int signo) {
   s_signo = signo;
 }
 
+unsigned char generator_const(double x)
+{
+    return 255;
+}
+
 void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr, int TOP, bool AC, int channel){
 
     double scope_gain = 0.5;//(double)(driver->scopeGain);
@@ -138,7 +143,8 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         {
             librador_set_device_mode(7); //multimeter mode
             //enable 
-            librador_send_sin_wave(2, 1000, 3, 0);
+            //send_convenience_waveform(2, 1000, 3, 0, generator_const);
+            //librador_send_sin_wave(2, 1000, 3, 0);
             _modeFlag = MODE_MM_RES;
         }
 
@@ -149,7 +155,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         analogConvert(data, &ch1, 2048, 0, 1); //currentVmean
 
         double seriesResistance = 1000;
-        double multimeterRsource = 0; //signal gen src
+        double multimeterRsource = 1;//PWR SUPPLY src 0; //signal gen src
         double rtest_para_r = 1/(1/seriesResistance);
         double ch2_ref = 1.65; //??
         double Vm = currentVmean;
