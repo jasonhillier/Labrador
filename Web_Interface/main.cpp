@@ -34,20 +34,20 @@ static void signal_handler(int signo) {
 
 void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr, int TOP, bool AC, int channel){
 
-    double scope_gain = 1;//(double)(driver->scopeGain);
+    double scope_gain = 0.5;//(double)(driver->scopeGain);
     double accumulated = 0;
     double accumulated_square = 0;
     double currentVmax = -20;
     double currentVmin = 20;
 
     double ref = 1.65; //(channel == 1 ? ch1_ref : ch2_ref);
-    double frontendGain = 1; //(channel == 1 ? frontendGain_CH1 : frontendGain_CH2);
+    double frontendGain = (R4/(R3+R4)); //(channel == 1 ? frontendGain_CH1 : frontendGain_CH2);
 
     double *data = doublePtr->data();
     double *src = shortPtr->data();
     for (int i=0;i<doublePtr->size();i++){
         printf("%g,", src[i]);
-        data[i] = src[i]; //???? (src[i] * (vcc/2)) / (frontendGain*scope_gain*TOP);
+        data[i] = (src[i] * (vcc/2)) / (frontendGain*scope_gain*TOP);
         //!! if (driver->deviceMode != 7) data[i] += ref;
         #ifdef INVERT_MM
             if(driver->deviceMode == 7) data[i] *= -1;
