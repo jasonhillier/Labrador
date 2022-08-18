@@ -7,6 +7,8 @@
 #include "librador.h"
 
 static int s_debug_level = MG_LL_INFO;
+static int MODE_MM_RES = 1;
+static int MODE_DEFAULT = 0;
 static const char *s_root_dir = ".";
 static const char *s_listening_address = "http://0.0.0.0:8000";
 static const char *s_enable_hexdump = "no";
@@ -18,6 +20,7 @@ static const char *s_ssi_pattern = "#.html";
 #define R2 (double)1000
 #define R1 (double)1000
 int GRAPH_SAMPLES = 1024;
+int _modeFlag = MODE_DEFAULT;
 
 double currentVmean, currentVRMS;
 
@@ -129,7 +132,13 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
 
         mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
-        //librador_set_device_mode(7); //multimeter mode
+        if (_modeFlag != MODE_MM_RES)
+        {
+            librador_set_device_mode(7); //multimeter mode
+            //enable 
+            librador_send_sin_wave(2. 1000, 3, 0);
+            _modeFlag = MODE_MM_RES;
+        }
 
         std::vector<double>* data = librador_get_analog_data(1, 5, 5000, 1, 0);
         //printf("got: %d", data->size())
