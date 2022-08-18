@@ -136,7 +136,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         {
             librador_set_device_mode(7); //multimeter mode
             //enable 
-            librador_send_sin_wave(2. 1000, 3, 0);
+            librador_send_sin_wave(2, 1000, 3, 0);
             _modeFlag = MODE_MM_RES;
         }
 
