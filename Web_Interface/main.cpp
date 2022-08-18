@@ -58,6 +58,8 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
         if (data[i] > currentVmax) currentVmax = data[i];
         if (data[i] < currentVmin) currentVmin = data[i];
     }
+
+    printf("acc = %g, size= %d", accumulated, doublePtr->size());
     
     currentVmean  = accumulated / doublePtr->size();
     //currentVRMS = sqrt(accumulated_square / doublePtr->size());
@@ -147,7 +149,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         analogConvert(data, &ch1, 2048, 0, 1); //currentVmean
 
         double seriesResistance = 1000;
-        double multimeterRsource = 0;
+        double multimeterRsource = 0; //signal gen src
         double rtest_para_r = 1/(1/seriesResistance);
         double ch2_ref = 1.65; //??
         double Vm = currentVmean;
