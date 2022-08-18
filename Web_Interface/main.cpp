@@ -51,8 +51,8 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
     double *data = doublePtr->data();
     double *src = shortPtr->data();
     for (int i=0;i<doublePtr->size();i++){
-        printf("%g,", src[i]);
         data[i] = (src[i] * (vcc/2)) / (frontendGain*scope_gain*TOP);
+        printf("%g,", data[i]);
         //!! if (driver->deviceMode != 7) data[i] += ref;
         #ifdef INVERT_MM
             if(driver->deviceMode == 7) data[i] *= -1;
@@ -64,7 +64,7 @@ void analogConvert(std::vector<double> *shortPtr, std::vector<double> *doublePtr
         if (data[i] < currentVmin) currentVmin = data[i];
     }
 
-    printf("acc = %g, size= %d |", accumulated, doublePtr->size());
+    //printf("acc = %g, size= %d |", accumulated, doublePtr->size());
     
     currentVmean  = accumulated / doublePtr->size();
     //currentVRMS = sqrt(accumulated_square / doublePtr->size());
@@ -149,18 +149,20 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         }
 
         std::vector<double>* data = librador_get_analog_data(1, 5, 5000, 1, 0);
-        printf("got: %d", data->size());
+        //printf("got: %d", data->size())
         //data buffer
         std::vector<double> ch1(GRAPH_SAMPLES);
         analogConvert(data, &ch1, 2048, 0, 1); //currentVmean
 
         double seriesResistance = 1000;
         double multimeterRsource = 1;//PWR SUPPLY src 0; //signal gen src
+        /*
         double rtest_para_r = 1/(1/seriesResistance);
         double ch2_ref = 1.65; //??
-        double Vm = currentVmean;
         double perturbation = ch2_ref * (rtest_para_r / (R3 + R4 + rtest_para_r));
-        Vm = Vm - perturbation;
+        */
+        double Vm = currentVmean;
+        //Vm = Vm - perturbation;
         double Vin = (multimeterRsource * 2) + 3;
         double Vrat = (Vin-Vm)/Vin;
         double Rp = 1/(1/seriesResistance + 1/(R3+R4));
@@ -169,7 +171,7 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         //estimated_resistance /= 1000; //k
 
 
-        mg_http_reply(c, 200, "", "{size: %d, ptr: %g, vm: %g, rk: %g, val: %g}", ch1.size(), perturbation, Vm, estimated_resistance, Vrat);  // Testing endpoint
+        mg_http_reply(c, 200, "", "{size: %d, ptr: %g, vm: %g, rk: %g, val: %g}", ch1.size(), 0 /*perturbation*/, Vm, estimated_resistance, Vrat);  // Testing endpoint
     } else {
         //serve static files
         mg_http_serve_dir(c, hm, &opts);
