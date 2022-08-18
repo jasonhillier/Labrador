@@ -129,15 +129,19 @@ static void cb(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     } else if (mg_http_match_uri(hm, "/lab/analog_data")) {
         std::vector<double> data = *librador_get_analog_data(1, 5, 5000, 1, 0);
         std::string dataout;
+        double acc = 0;
         for(double d : data)
         {
+            acc += d;
             dataout.append(std::to_string(d));
             dataout.append("0,");
         }
 
+        acc = acc / data.size();
+
         dataout.append("0");
 
-        mg_http_reply(c, 200, "", "{data: [%s]}", dataout.c_str());  // Testing endpoint
+        mg_http_reply(c, 200, "", "{mean: %g, data: [%s]}", acc, dataout.c_str());  // Testing endpoint
     } else if (mg_http_match_uri(hm, "/lab/mm/res")) {
         if (_modeFlag != MODE_MM_RES)
         {
