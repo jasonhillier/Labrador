@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     daqloadprompt.cpp \
     isobuffer_file.cpp \
     i2cdecoder.cpp \
-    asyncdft.cpp
+    asyncdft.cpp \
+    mongoose.c
 
 HEADERS  += mainwindow.h \
     functiongencontrol.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     daqloadprompt.h \
     isobuffer_file.h \
     i2cdecoder.h \
-    asyncdft.h
+    asyncdft.h \
+    mongoose.h
 
 android:{
 FORMS    += ui_files_mobile/mainwindow.ui \
@@ -352,5 +354,8 @@ unix:!macx: LIBS += -fopenmp
 macx: LIBS += -lomp
 unix: LIBS += -lfftw3f_omp
 unix: LIBS += -lfftw3_threads
+unix: LIBS += -DMG_ARCH_UNIX=1 -DMG_ENABLE_MBEDTLS=1
+##unix: LIBS += -DMG_ENABLE_MBEDTLS=1 -lmbedtls -lmbedcrypto -lmbedx509 -lmongoose
 macx: INCLUDEPATH += /usr/local/include
 macx: LIBS+= -L/usr/local/lib
+-DMG_ENABLE_MBEDTLS=1 -DMG_ENABLE_MBEDTLS=1 

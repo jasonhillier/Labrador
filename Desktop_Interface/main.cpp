@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include "webserver.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,7 +13,11 @@ int main(int argc, char *argv[])
     qApp->setFont(font);
 #endif
 
+    init_webserver();
+
     MainWindow w;
+    link_webserver(&w);
+
     w.show();
 
     return a.exec();

@@ -228,9 +228,11 @@ private slots:
     void on_actionShow_Debug_Console_triggered(bool checked);
     void on_actionFrequency_Spectrum_triggered(bool checked);
 
+public:
+    Ui::MainWindow *ui;
+    
 private:
     //Generic Vars
-    Ui::MainWindow *ui;
     QWheelEvent *wheelEmu;
     bool forceSquare = false;
     QCPItemText *textLabel;
