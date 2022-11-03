@@ -77,7 +77,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
     } else if (mg_http_match_uri(hm, "/mm/volt"))
     {
         setOscMode(1);
-        mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->text());
+        mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterRmsDisplay->value());
     } else {
 
         //mg_http_reply(c, 200, "", "no response\n");  // Testing endpoint
