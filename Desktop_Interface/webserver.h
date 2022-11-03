@@ -17,7 +17,7 @@ uint _currentMode = 0;
 
 static void setOscMode(uint mode)
 {
-    if (_currentMode=mode) return;
+    if (_currentMode==mode) return;
 
     if (mode==1)
     {
