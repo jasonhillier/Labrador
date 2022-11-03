@@ -52,9 +52,9 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
         _w->ui->multimeterGroup->setChecked(true);
 
         _w->ui->multimeterModeSelect->setCurrentIndex(2);
-        _w->ui->multimeterResistanceSelect(1000);
+        _w->ui->multimeterResistanceSelect->setValue(1000);
 
-        mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->value());
+        mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->text());
     } else {
 
         //mg_http_reply(c, 200, "", "no response\n");  // Testing endpoint
