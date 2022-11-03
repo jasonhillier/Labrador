@@ -55,7 +55,6 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
         _w->ui->multimeterResistanceSelect(1000);
 
         mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->value());
-    }
     } else {
 
         //mg_http_reply(c, 200, "", "no response\n");  // Testing endpoint
