@@ -19,7 +19,7 @@ static void setOscMode(uint mode)
 {
     if (_currentMode=mode) return;
 
-    if (_currentMode!=1)
+    if (mode==1)
     {
         _w->ui->scopeGroup_CH1->setChecked(false);
         _w->ui->scopeGroup_CH2->setChecked(false);
