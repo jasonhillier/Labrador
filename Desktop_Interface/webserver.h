@@ -45,6 +45,17 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
     } else if (mg_http_match_uri(hm, "/ch1/mean"))
     {    
         mg_http_reply(c, 200, "", "{mean: %g}", _w->ui->voltageInfoMeanDisplay_CH1->value());
+    } else if (mg_http_match_uri(hm, "/mm/volt"))
+    {
+        _w->ui->scopeGroup_CH1->setChecked(false);
+        _w->ui->scopeGroup_CH2->setChecked(false);
+        _w->ui->multimeterGroup->setChecked(true);
+
+        _w->ui->multimeterModeSelect->setCurrentIndex(2);
+        _w->ui->multimeterResistanceSelect(1000);
+
+        mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->value());
+    }
     } else {
 
         //mg_http_reply(c, 200, "", "no response\n");  // Testing endpoint
