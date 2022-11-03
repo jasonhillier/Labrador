@@ -13,6 +13,33 @@ static const char *s_enable_hexdump = "no";
 static const char *s_ssi_pattern = "#.html";
 
 MainWindow* _w = NULL;
+uint _currentMode = 0;
+
+static void setOscMode(uint mode)
+{
+    if (_currentMode=mode) return;
+
+    if (_currentMode!=1)
+    {
+        _w->ui->scopeGroup_CH1->setChecked(false);
+        _w->ui->scopeGroup_CH2->setChecked(false);
+        _w->ui->multimeterGroup->setChecked(true);
+
+        _w->ui->multimeterModeSelect->setCurrentIndex(2);
+        _w->ui->multimeterResistanceSelect->setValue(1000);
+
+        _currentMode = 1;
+    }
+    else
+    {
+        _w->ui->multimeterGroup->setChecked(false);
+
+        _w->ui->scopeGroup_CH1->setChecked(true);
+        _w->ui->scopeGroup_CH2->setChecked(false);
+
+        _currentMode = 0;
+    }
+}
 
 static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
 {
@@ -39,21 +66,17 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data)
     {    
         mg_http_reply(c, 200, "", "{baud: %d}", _w->ui->controller_iso->baudRate_CH1);
     } else if (mg_http_match_uri(hm, "/lab/ch1"))
-    {    
+    {
+        setOscMode(0);
         mg_http_reply(c, 200, "", "{ref: %g}", _w->ui->controller_iso->ch1_ref); 
         //
     } else if (mg_http_match_uri(hm, "/ch1/mean"))
-    {    
+    {
+        setOscMode(0);
         mg_http_reply(c, 200, "", "{mean: %g}", _w->ui->voltageInfoMeanDisplay_CH1->value());
     } else if (mg_http_match_uri(hm, "/mm/volt"))
     {
-        _w->ui->scopeGroup_CH1->setChecked(false);
-        _w->ui->scopeGroup_CH2->setChecked(false);
-        _w->ui->multimeterGroup->setChecked(true);
-
-        _w->ui->multimeterModeSelect->setCurrentIndex(2);
-        _w->ui->multimeterResistanceSelect->setValue(1000);
-
+        setOscMode(1);
         mg_http_reply(c, 200, "", "{vmean: %g}", _w->ui->multimeterResistanceLabel->text());
     } else {
 
